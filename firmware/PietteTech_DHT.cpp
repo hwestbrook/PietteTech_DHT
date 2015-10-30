@@ -136,7 +136,7 @@ int PietteTech_DHT::acquire() {
 int PietteTech_DHT::acquireAndWait(uint32_t timeout=ACQUIRE_AND_WAIT_TIMEOUT) {
     acquire();
     uint32_t start = millis();
-    while(acquiring() && start + timeout > millis());
+    while(acquiring() && start + timeout > millis() && start - 1 < millis());
     return getStatus();
 }
 
