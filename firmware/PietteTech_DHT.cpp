@@ -22,7 +22,7 @@
 /*
     Timing of DHT22 SDA signal line after MCU pulls low for 1ms
     https://github.com/mtnscott/Spark_DHT/AM2302.pdf
- 
+
   - - - -            -----           -- - - --            ------- - -
          \          /     \         /  \      \          /
           +        /       +       /    +      +        /
@@ -30,7 +30,7 @@
             ------           -----        -- - --------
  ^        ^                ^                   ^          ^
  |   Ts   |        Tr      |        Td         |    Te    |
- 
+
     Ts : Start time from MCU changing SDA from Output High to Tri-State (Hi-Z)
          Spec: 20-200us             Tested: < 65us
     Tr : DHT response to MCU controlling SDA and pulling Low and High to
@@ -83,7 +83,7 @@ int PietteTech_DHT::acquire() {
         // return last correct measurement, (this read time - last read time) < device limit
         return DHTLIB_ACQUIRED;
     }
-    
+
     if (_state == STOPPED || _state == ACQUIRED) {
         /*
          * Setup the initial state machine
@@ -133,9 +133,10 @@ int PietteTech_DHT::acquire() {
         return DHTLIB_ERROR_ACQUIRING;
 }
 
-int PietteTech_DHT::acquireAndWait() {
+int PietteTech_DHT::acquireAndWait(uint32_t timeout=ACQUIRE_AND_WAIT_TIMEOUT) {
     acquire();
-    while(acquiring()) ;
+    uint32_t start = millis();
+    while(acquiring() && start + timeout > millis());
     return getStatus();
 }
 
@@ -261,12 +262,12 @@ float PietteTech_DHT::getKelvin() {
  * Added methods for supporting Adafruit Unified Sensor framework
  */
 float PietteTech_DHT::readTemperature() {
-    acquireAndWait();
+    acquireAndWait(ACQUIRE_AND_WAIT_TIMEOUT);
     return getCelsius();
 }
 
 float PietteTech_DHT::readHumidity() {
-    acquireAndWait();
+    acquireAndWait(ACQUIRE_AND_WAIT_TIMEOUT);
     return getHumidity();
 }
 
